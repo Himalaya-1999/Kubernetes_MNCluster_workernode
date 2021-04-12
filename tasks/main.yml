@@ -1,48 +1,45 @@
-- hosts: slave
-  name: "Setting up Worker Nodes on Aws Cloud"
-  tasks:
-    - name: "Installing Docker as a underlying Container Engine & required packages"
-      package: 
-        name: 
-         - "docker"
-         - "iproute-tc"
-        state: present
-    - name: "Starting docker services"
-      service:
-        name: docker
-        state: started
-        enabled: yes
-    - name: "Setting up Kubeadm yum repository"
-      yum_repository:
-        name: Kubernetes
-        description: kubernetes repo
-        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
-        enabled: yes
-        gpgcheck: yes
-        repo_gpgcheck: yes
-        gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-    
-    - name: "Installing Kubeadm, Kubelet, and Kubectl packages"
-      yum:
-        name: [ 'kubectl', 'kubeadm', 'kubelet' ]
-        state: present
-    - name: "updating systemd docker driver from cgroups"
-      copy:
-        dest: /etc/docker/daemon.json
-        src: daemon.json
-    - name: restarting docker services
-      service:
-        name: docker
-        state: restarted
-    - name: "Starting Kubelet Service"
-      service:
-        name: "kubelet"
-        state: started
-        enabled: yes
-    - name: "Sending master token authentication to Worker nodes"
-      copy:
-        src: /tmp/token
-        dest: /tmp/token
-    - name: "Joining the cluster worker nodes with master"
-      shell: "bash /tmp/token"
-      ignore_errors: True
+---
+- name: "Installing Docker as a underlying Container Engine & required packages"
+  package: 
+    name: 
+     - "docker"
+     - "iproute-tc"
+    state: present
+- name: "Starting docker services"
+  service:
+    name: docker
+    state: started
+    enabled: yes
+- name: "Setting up Kubeadm yum repository"
+  yum_repository:
+    name: Kubernetes
+    description: kubernetes repo
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+    enabled: yes
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+- name: "Installing Kubeadm, Kubelet, and Kubectl packages"
+  yum:
+    name: [ 'kubectl', 'kubeadm', 'kubelet' ]
+    state: present
+- name: "updating systemd docker driver from cgroups"
+  copy:
+    dest: /etc/docker/daemon.json
+    src: daemon.json
+- name: restarting docker services
+  service:
+    name: docker
+    state: restarted
+- name: "Starting Kubelet Service"
+  service:
+    name: "kubelet"
+    state: started
+    enabled: yes
+- name: "Sending master token authentication to Worker nodes"
+  copy:
+    src: /tmp/token
+    dest: /tmp/token
+- name: "Joining the cluster worker nodes with master"
+  shell: "bash /tmp/token"
+  ignore_errors: True
